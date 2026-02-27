@@ -36,4 +36,22 @@ class CRC32 {
 
     return crc & 0xffffffff;
   }
+
+  static int mpeg2BigEndian(var input, [int crc = 0xffffffff]) {
+    if (input == null) throw ArgumentError.notNull('input');
+    if (input.length % 4 != 0)
+      throw ArgumentError.value(input, 'input must be a multiple of 4 bytes');
+    if (input is String) input = utf8.encode(input);
+
+    for (var index = 0; index < input.length; index += 4) {
+      for (var i = 3; i >= 0; i--) {
+        var byte = input[index + i];
+        var x = CrcTable.mpeg2[((crc >> 24) ^ byte) & 0xff];
+        crc = (crc & 0xffffffff) << 8;
+        crc ^= x;
+      }
+    }
+
+    return crc & 0xffffffff;
+  }
 }
